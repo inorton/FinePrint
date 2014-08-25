@@ -12,7 +12,7 @@ using FinePrint.Contracts.Parameters;
 
 namespace FinePrint.Contracts
 {
-    public class SatelliteContract : Contract
+    public class SatelliteContract : ContractBase
     {
         CelestialBody targetBody = null;
         double deviation = 10;
@@ -20,24 +20,23 @@ namespace FinePrint.Contracts
         System.Random generator;
         double difficultyFactor = 0.5;
 
-        protected override bool Generate()
+        public override int GetMaxActiveContracts()
         {
-            if (AreSatellitesUnlocked() == false)
-                return false;
+            return 4;
+        }
 
-            //Allow four contracts in pocket but only two on the board at a time.
-            int offeredContracts = 0;
-            int activeContracts = 0;
-            foreach (SatelliteContract contract in ContractSystem.Instance.GetCurrentContracts<SatelliteContract>())
-            {
-                if (contract.ContractState == Contract.State.Offered)
-                    offeredContracts++;
-                else if (contract.ContractState == Contract.State.Active)
-                    activeContracts++;
-            }
-            
-            if (offeredContracts >= 2 || activeContracts >= 4)
-                return false;
+        public override int GetMaxOfferedContracts()
+        {
+            return 2;
+        }
+
+        public override bool HasRequiredTech()
+        {
+            return base.HasRequiredTech() && TechTree.AreSatellitesUnlocked();
+        }
+
+        public override bool GenerateContract()
+        {
 
             generator = new System.Random(this.MissionSeed);
             float rewardMultiplier = 1.0f;
@@ -205,21 +204,6 @@ namespace FinePrint.Contracts
             return true;
         }
 
-        public override bool CanBeCancelled()
-        {
-            return true;
-        }
-
-        public override bool CanBeDeclined()
-        {
-            return true;
-        }
-
-        protected override string GetHashString()
-        {
-            return (this.MissionSeed.ToString() + this.DateAccepted.ToString());
-        }
-
         protected override string GetTitle()
         {
             switch (orbitType)
@@ -321,9 +305,9 @@ namespace FinePrint.Contracts
 
         protected override void OnLoad(ConfigNode node)
         {
-            Util.LoadNode(node, "SatelliteContract", "targetBody", ref targetBody, Planetarium.fetch.Home);
-            Util.LoadNode(node, "SatelliteContract", "deviation", ref deviation, 10);
-            Util.LoadNode(node, "SatelliteContract", "orbitType", ref orbitType, OrbitType.RANDOM);
+            Util.LoadNode(node, ClassName, "targetBody", ref targetBody, Planetarium.fetch.Home);
+            Util.LoadNode(node, ClassName, "deviation", ref deviation, 10);
+            Util.LoadNode(node, ClassName, "orbitType", ref orbitType, OrbitType.RANDOM);
         }
 
         protected override void OnSave(ConfigNode node)
@@ -337,97 +321,6 @@ namespace FinePrint.Contracts
         public override bool MeetRequirements()
         {
             return true;
-        }
-
-        protected static bool AreSatellitesUnlocked()
-        {
-            if (AreAntennaeUnlocked() && AreProbeCoresUnlocked() && ArePowerPartsUnlocked())
-                return true;
-
-            return false;
-        }
-
-        protected static bool ArePowerPartsUnlocked()
-        {
-            if (Util.haveTechnology("rtg"))
-                return true;
-
-            if (Util.haveTechnology("largeSolarPanel"))
-                return true;
-
-            if (Util.haveTechnology("solarPanels1"))
-                return true;
-
-            if (Util.haveTechnology("solarPanels2"))
-                return true;
-
-            if (Util.haveTechnology("solarPanels3"))
-                return true;
-
-            if (Util.haveTechnology("solarPanels4"))
-                return true;
-
-            if (Util.haveTechnology("solarPanels5"))
-                return true;
-
-            return false;
-        }
-
-        protected static bool AreAntennaeUnlocked()
-        {
-            if (Util.haveTechnology("commDish"))
-                return true;
-
-            if (Util.haveTechnology("longAntenna"))
-                return true;
-
-            if (Util.haveTechnology("mediumDishAntenna"))
-                return true;
-
-            return false;
-        }
-
-        protected static bool AreProbeCoresUnlocked()
-        {
-            if (Util.haveTechnology("probeCoreCube"))
-                return true;
-
-            if (Util.haveTechnology("probeCoreHex"))
-                return true;
-
-            if (Util.haveTechnology("probeCoreOcto"))
-                return true;
-
-            if (Util.haveTechnology("probeCoreOcto2"))
-                return true;
-
-            if (Util.haveTechnology("probeCoreSphere"))
-                return true;
-
-            if (Util.haveTechnology("probeStackLarge"))
-                return true;
-
-            if (Util.haveTechnology("probeStackSmall"))
-                return true;
-
-            return false;
-        }
-
-        protected static CelestialBody GetNextUnreachedTarget(int depth, bool removeSun, bool removeKerbin)
-        {
-            var bodies = Contract.GetBodies_NextUnreached(depth, null);
-            if (bodies != null)
-            {
-                if (removeSun)
-                    bodies.Remove(Planetarium.fetch.Sun);
-
-                if (removeKerbin)
-                    bodies.Remove(Planetarium.fetch.Home);
-
-                if (bodies.Count > 0)
-                    return bodies[UnityEngine.Random.Range(0, bodies.Count - 1)];
-            }
-            return null;
         }
 
         private void pickEasy()
