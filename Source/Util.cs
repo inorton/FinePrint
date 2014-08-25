@@ -9,6 +9,7 @@ using Contracts.Parameters;
 using KSP;
 using KSPAchievements;
 using FinePrint.Contracts.Parameters;
+using FinePrint.Contracts;
 
 namespace FinePrint
 {
@@ -209,6 +210,18 @@ namespace FinePrint
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns true of any one of the given technologies has been researched.
+        /// </summary>
+        /// <param name="techs"></param>
+        /// <returns></returns>
+        public static bool haveAnyTechnology(params string[] techs)
+        {
+            foreach ( var t in techs )
+                if ( haveTechnology(t) ) return true;
+            return false;
+        }
 
         public static bool haveTechnology(string tech)
         {
@@ -470,6 +483,12 @@ namespace FinePrint
                 value = defaultValue;
                 resetBoard();
             }
+        }
+
+        public static void LoadNodeEx<T>(ConfigNode node, T contractclass, string nameOfValue, ref CelestialBody body, CelestialBody defaultBody)
+            where T : ContractBase
+        {
+
         }
 
         public static void LoadNode(ConfigNode node, string nameOfClass, string nameOfValue, ref CelestialBody body, CelestialBody defaultBody)

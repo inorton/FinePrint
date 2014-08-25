@@ -14,16 +14,14 @@ namespace FinePrint.Contracts
 {
     public class LowLevelAerialContract : AerialContract
     {
-        protected override bool AllowContract()
+        public override int GetMaxActiveContracts()
         {
-            //Allow three contracts in pocket but only two on the board at a time.
-            var acs = Util.GetContracts<LowLevelAerialContract>();
-            int offeredContracts = Util.CountContractState(acs, Contract.State.Offered);
-            int activeContracts = Util.CountContractState(acs, Contract.State.Active);
+            return 5;
+        }
 
-            if (offeredContracts >= 2 || activeContracts >= 3)
-                return false;
-            return true;
+        public override int GetMaxOfferedContracts()
+        {
+            return 3;
         }
 
         protected override int SetAltitudeRange(int additionalWaypoints)

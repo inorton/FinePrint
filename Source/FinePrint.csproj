@@ -46,8 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContractCounter.cs" />
+    <Compile Include="ContractLimit.cs" />
     <Compile Include="Contracts\AerialContract.cs" />
     <Compile Include="Contracts\ARMContract.cs" />
+    <Compile Include="Contracts\ContractBase.cs" />
     <Compile Include="Contracts\FacilityContract.cs" />
     <Compile Include="Contracts\LowLevelAerialContract.cs" />
     <Compile Include="Contracts\RoverContract.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="Parameters\RoverWaypointParameter.cs" />
     <Compile Include="Parameters\SpecificOrbitParameter.cs" />
     <Compile Include="Parameters\StationaryPointParameter.cs" />
+    <Compile Include="TechTree.cs" />
     <Compile Include="Util.cs">
       <SubType>Code</SubType>
     </Compile>

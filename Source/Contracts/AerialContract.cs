@@ -12,32 +12,31 @@ using FinePrint.Contracts.Parameters;
 
 namespace FinePrint.Contracts
 {
-    public class AerialContract : Contract
+    public class AerialContract : ContractBase
     {
+        public override int GetMaxActiveContracts()
+        {
+            return 4;
+        }
+
+        public override int GetMaxOfferedContracts()
+        {
+            return 3;
+        }
+
         protected CelestialBody targetBody = null;
         protected double minAltitude = 0.0;
         protected double maxAltitude = 2000.0;
         protected double centerLatitude = 0.0;
         protected double centerLongitude = 0.0;
 
-        protected virtual bool AllowContract()
+        public override bool HasRequiredTech()
         {
-            //Allow four contracts in pocket but only two on the board at a time.
-            var acs = Util.GetContracts<AerialContract>();
-            int offeredContracts = Util.CountContractState(acs, Contract.State.Offered);
-            int activeContracts = Util.CountContractState(acs, Contract.State.Active);
-
-            if (offeredContracts >= 2 || activeContracts >= 4)
-                return false;
-            return true;
+            return base.HasRequiredTech() && TechTree.AreWingsUnlocked();
         }
 
-        protected override bool Generate()
+        public override bool GenerateContract()
         {
-            if (AreWingsUnlocked() == false)
-                return false;
-
-            if (!AllowContract()) return false;
 
             double range = 10000.0;
             System.Random generator = new System.Random(this.MissionSeed);
@@ -141,21 +140,6 @@ namespace FinePrint.Contracts
             return additionalWaypoints;
         }
 
-        public override bool CanBeCancelled()
-        {
-            return true;
-        }
-
-        public override bool CanBeDeclined()
-        {
-            return true;
-        }
-
-        protected override string GetHashString()
-        {
-            return (this.MissionSeed.ToString() + this.DateAccepted.ToString());
-        }
-
         protected override string GetTitle()
         {
             return "Perform aerial surveys of " + targetBody.theName + " at an altitude of " + (int)minAltitude + " to " + (int)maxAltitude + ".";
@@ -179,11 +163,11 @@ namespace FinePrint.Contracts
 
         protected override void OnLoad(ConfigNode node)
         {
-            Util.LoadNode(node, this.GetType().Name, "targetBody", ref targetBody, Planetarium.fetch.Home);
-            Util.LoadNode(node, this.GetType().Name, "minAltitude", ref minAltitude, 0.0);
-            Util.LoadNode(node, this.GetType().Name, "maxAltitude", ref maxAltitude, 10000);
-            Util.LoadNode(node, this.GetType().Name, "centerLatitude", ref centerLatitude, 0.0);
-            Util.LoadNode(node, this.GetType().Name, "centerLongitude", ref centerLongitude, 0.0);
+            Util.LoadNode(node, ClassName, "targetBody", ref targetBody, Planetarium.fetch.Home);
+            Util.LoadNode(node, ClassName, "minAltitude", ref minAltitude, 0.0);
+            Util.LoadNode(node, ClassName, "maxAltitude", ref maxAltitude, 10000);
+            Util.LoadNode(node, ClassName, "centerLatitude", ref centerLatitude, 0.0);
+            Util.LoadNode(node, ClassName, "centerLongitude", ref centerLongitude, 0.0);
         }
 
         protected override void OnSave(ConfigNode node)
@@ -199,38 +183,6 @@ namespace FinePrint.Contracts
         public override bool MeetRequirements()
         {
             return true;
-        }
-
-        protected static bool AreWingsUnlocked()
-        {
-            if (Util.haveTechnology("AdvancedCanard"))
-                return true;
-            if (Util.haveTechnology("StandardCtrlSrf"))
-                return true;
-            if (Util.haveTechnology("airplaneTail"))
-                return true;
-            if (Util.haveTechnology("CanardController"))
-                return true;
-            if (Util.haveTechnology("deltaWing"))
-                return true;
-            if (Util.haveTechnology("noseConeAdapter"))
-                return true;
-            if (Util.haveTechnology("rocketNoseCone"))
-                return true;
-            if (Util.haveTechnology("smallCtrlSrf"))
-                return true;
-            if (Util.haveTechnology("standardNoseCone"))
-                return true;
-            if (Util.haveTechnology("sweptWing"))
-                return true;
-            if (Util.haveTechnology("tailfin"))
-                return true;
-            if (Util.haveTechnology("wingConnector"))
-                return true;
-            if (Util.haveTechnology("winglet3"))
-                return true;
-
-            return false;
         }
     }
 }
